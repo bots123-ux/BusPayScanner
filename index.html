@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
+
+    <meta name="theme-color" content="#0f0f1a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="QR Reader" />
+    <meta name="application-name" content="QR Reader" />
+
+    <title>QR Reader — BusPay Scanner</title>
+    <meta name="description" content="Scan BusPay tickets for passenger boarding verification." />
+  </head>
+  <body style="margin:0;background:#0f0f1a">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Capture install prompt as early as possible
+      window.__install_prompt = null;
+      window.addEventListener("beforeinstallprompt", function(e) {
+        e.preventDefault();
+        window.__install_prompt = e;
+      });
+      // Register service worker
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() {
+          navigator.serviceWorker.register("/sw.js");
+        });
+      }
+    </script>
+  </body>
+</html>
