@@ -6,11 +6,10 @@ import { format } from "date-fns";
 
 interface Scan {
   id: string;
+  user_id: string;
   seat_number: number;
   boarded_at: string;
-  passenger: {
-    full_name: string | null;
-  } | null;
+  passenger_name?: string | null;
   trips: {
     routes: {
       origin: string;
@@ -52,15 +51,13 @@ export default function HomePage() {
     setCount(total ?? 0);
 
     // Recent scans — last 15
-    const { data } = await supabase
+    const { data: ticketData } = await supabase
       .from("ticket")
       .select(`
         id,
+        user_id,
         seat_number,
         boarded_at,
-        passenger (
-          full_name
-        ),
         trips (
           routes (
             origin,
@@ -73,7 +70,29 @@ export default function HomePage() {
       .order("boarded_at", { ascending: false })
       .limit(15);
 
-    setScans((data as unknown as Scan[]) ?? []);
+    const tickets = (ticketData as unknown as Scan[]) ?? [];
+
+    // Look up passenger names by user_id (no direct FK on ticket → passenger)
+    if (tickets.length > 0) {
+      const userIds = [...new Set(tickets.map((t) => t.user_id))];
+      const { data: passengerData } = await supabase
+        .from("passenger")
+        .select("user_id, full_name")
+        .in("user_id", userIds);
+
+      const nameMap: Record<string, string> = {};
+      for (const p of passengerData ?? []) {
+        nameMap[(p as any).user_id] = (p as any).full_name;
+      }
+
+      const enriched = tickets.map((t) => ({
+        ...t,
+        passenger_name: nameMap[t.user_id] ?? null,
+      }));
+      setScans(enriched);
+    } else {
+      setScans([]);
+    }
     setLoading(false);
   };
 
@@ -241,7 +260,7 @@ export default function HomePage() {
 
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 14, fontWeight: 700, margin: "0 0 2px" }}>
-                  {s.passenger?.full_name ?? "Unknown Passenger"}
+                  {s.passenger_name ?? "Unknown Passenger"}
                 </p>
                 <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
                   {s.trips?.routes?.origin ?? "—"} → {s.trips?.routes?.destination ?? "—"} · Seat #{s.seat_number}
