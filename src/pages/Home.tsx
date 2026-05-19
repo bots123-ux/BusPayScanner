@@ -8,6 +8,9 @@ interface Scan {
   id: string;
   seat_number: number;
   boarded_at: string;
+  passenger: {
+    full_name: string | null;
+  } | null;
   trips: {
     routes: {
       origin: string;
@@ -55,6 +58,9 @@ export default function HomePage() {
         id,
         seat_number,
         boarded_at,
+        passenger (
+          full_name
+        ),
         trips (
           routes (
             origin,
@@ -234,11 +240,11 @@ export default function HomePage() {
               </div>
 
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, fontWeight: 600, margin: "0 0 2px" }}>
-                  {s.trips?.routes?.origin ?? "—"} → {s.trips?.routes?.destination ?? "—"}
+                <p style={{ fontSize: 14, fontWeight: 700, margin: "0 0 2px" }}>
+                  {s.passenger?.full_name ?? "Unknown Passenger"}
                 </p>
                 <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
-                  Seat #{s.seat_number}
+                  {s.trips?.routes?.origin ?? "—"} → {s.trips?.routes?.destination ?? "—"} · Seat #{s.seat_number}
                 </p>
               </div>
 
