@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Home, User } from "lucide-react";
+import { Home, User, History } from "lucide-react";
 import HomePage from "./Home";
 import ProfilePage from "./Profile";
+import HistoryPage from "./History";
 
-type Tab = "home" | "profile";
+type Tab = "home" | "history" | "profile";
 
 export default function Shell() {
   const [tab, setTab] = useState<Tab>("home");
@@ -13,6 +14,7 @@ export default function Shell() {
       {/* Page content */}
       <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "none" }}>
         {tab === "home"    && <HomePage />}
+        {tab === "history" && <HistoryPage />}
         {tab === "profile" && <ProfilePage />}
       </div>
 
@@ -25,8 +27,9 @@ export default function Shell() {
         paddingBottom: "env(safe-area-inset-bottom)",
       }}>
         {([
-          { id: "home",    Icon: Home, label: "Home"    },
-          { id: "profile", Icon: User, label: "Profile" },
+          { id: "home",    Icon: Home,    label: "Home"    },
+          { id: "history", Icon: History, label: "History" },
+          { id: "profile", Icon: User,    label: "Profile" },
         ] as { id: Tab; Icon: any; label: string }[]).map(({ id, Icon, label }) => (
           <button key={id} onClick={() => setTab(id)} style={{
             flex: 1,
