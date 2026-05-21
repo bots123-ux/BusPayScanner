@@ -20,11 +20,15 @@ export default function ProfilePage() {
       setEmail(session.user.email ?? "");
 
       const { data: p } = await supabase.from("passenger")
-        .select("full_name, is_admin, is_driver")
+        .select("full_name")
         .eq("user_id", session.user.id).maybeSingle();
       if (p?.full_name) setName(p.full_name);
-      if (p?.is_admin) setRole("Admin");
-      else if (p?.is_driver) setRole("Driver");
+      // Check role via correct tables
+      const { data: adminRow } = await supabase.from("admin_accounts").select("user_id").eq("user_id", session.user.id).maybeSingle();
+      if (adminRow) { setRole("Admin"); } else {
+        const { data: driverRow } = await supabase.from("driver_accounts").select("user_id").eq("user_id", session.user.id).maybeSingle();
+        if (driverRow) setRole("Driver");
+      }
     })();
 
     if (window.matchMedia("(display-mode: standalone)").matches) setInstalled(true);
