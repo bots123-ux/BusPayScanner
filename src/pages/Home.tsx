@@ -12,6 +12,7 @@ interface Scan {
   passenger_name?: string | null;
   trips: {
     travel_date: string | null;
+    departure_time: string | null;
     routes: {
       origin: string;
       destination: string;
@@ -61,6 +62,7 @@ export default function HomePage() {
         boarded_at,
         trips (
           travel_date,
+          departure_time,
           routes (
             origin,
             destination
@@ -270,6 +272,7 @@ export default function HomePage() {
                 {s.trips?.travel_date && (
                   <p style={{ fontSize: 11, color: "#475569", margin: "2px 0 0" }}>
                     {format(new Date(s.trips.travel_date + "T00:00:00"), "MMM d, yyyy")}
+                    {s.trips?.departure_time ? ` · Dep. ${s.trips.departure_time.slice(0, 5)}` : ""}
                   </p>
                 )}
               </div>
